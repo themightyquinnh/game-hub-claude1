@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Breakout</title>
+<style>body{margin:0;background:#111;color:#eee;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}canvas{background:#1b1e2b;border-radius:8px}</style></head>
+<body><div id="s">Move with mouse or ← →</div><canvas id="c" width="480" height="400"></canvas>
+<script>
+const c=document.getElementById("c"),x=c.getContext("2d"),info=document.getElementById("s");
+let paddle,ball,bricks,score,over,keys={};
+function reset(){
+  paddle={x:200,w:80,h:10};
+  ball={x:240,y:300,dx:3,dy:-3,r:7};
+  bricks=[];
+  for(let r=0;r<5;r++)for(let i=0;i<8;i++)bricks.push({x:i*60+4,y:r*22+30,w:52,h:16,on:true,c:`hsl(${r*50+240},70%,60%)`});
+  score=0;over=false;info.textContent="Move with mouse or ← →";
+}
+addEventListener("keydown",e=>{keys[e.key]=true;if(e.key===" "&&over)reset();});
+addEventListener("keyup",e=>keys[e.key]=false);
+c.addEventListener("mousemove",e=>{const r=c.getBoundingClientRect();paddle.x=Math.max(0,Math.min(480-paddle.w,e.clientX-r.left-paddle.w/2));});
+function tick(){
+  if(!over){
+    if(keys.ArrowLeft)paddle.x=Math.max(0,paddle.x-6);
+    if(keys.ArrowRight)paddle.x=Math.min(480-paddle.w,paddle.x+6);
+    ball.x+=ball.dx;ball.y+=ball.dy;
+    if(ball.x<ball.r||ball.x>480-ball.r)ball.dx*=-1;
+    if(ball.y<ball.r)ball.dy*=-1;
+    if(ball.y>380-ball.r&&ball.y<392&&ball.x>paddle.x&&ball.x<paddle.x+paddle.w&&ball.dy>0){
+      ball.dy*=-1;ball.dx=((ball.x-(paddle.x+paddle.w/2))/(paddle.w/2))*4;
+    }
+    for(const b of bricks)if(b.on&&ball.x>b.x&&ball.x<b.x+b.w&&ball.y>b.y&&ball.y<b.y+b.h){b.on=false;ball.dy*=-1;score++;}
+    if(ball.y>400){over=true;info.textContent="Game over ("+score+") — press Space";}
+    if(bricks.every(b=>!b.on)){over=true;info.textContent="You win! — press Space";}
+  }
+  x.clearRect(0,0,480,400);
+  bricks.forEach(b=>{if(b.on){x.fillStyle=b.c;x.fillRect(b.x,b.y,b.w,b.h);}});
+  x.fillStyle="#7c5cff";x.fillRect(paddle.x,380,paddle.w,paddle.h);
+  x.fillStyle="#fff";x.beginPath();x.arc(ball.x,ball.y,ball.r,0,7);x.fill();
+  requestAnimationFrame(tick);
+}
+reset();tick();
+</script></body></html>

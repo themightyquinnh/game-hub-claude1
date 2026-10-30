@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Snake</title>
+<style>body{margin:0;background:#111;color:#eee;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}canvas{background:#1b1e2b;border-radius:8px}</style></head>
+<body><div id="s">Score: 0 — arrow keys / WASD</div><canvas id="c" width="400" height="400"></canvas>
+<script>
+const c=document.getElementById("c"),x=c.getContext("2d"),N=20,S=20;
+let snake,dir,food,score,dead,loop;
+function reset(){snake=[{x:10,y:10}];dir={x:1,y:0};food={x:5,y:5};score=0;dead=false;document.getElementById("s").textContent="Score: 0 — arrow keys / WASD";}
+function step(){
+  if(dead)return;
+  const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(p=>p.x===h.x&&p.y===h.y)){dead=true;document.getElementById("s").textContent="Game over ("+score+") — press Space";return;}
+  snake.unshift(h);
+  if(h.x===food.x&&h.y===food.y){score++;document.getElementById("s").textContent="Score: "+score;food={x:Math.random()*N|0,y:Math.random()*N|0};}
+  else snake.pop();
+  x.clearRect(0,0,400,400);
+  x.fillStyle="#ff5c7c";x.fillRect(food.x*S,food.y*S,S-2,S-2);
+  x.fillStyle="#7c5cff";snake.forEach(p=>x.fillRect(p.x*S,p.y*S,S-2,S-2));
+}
+addEventListener("keydown",e=>{
+  const k=e.key.toLowerCase();
+  if((k==="arrowup"||k==="w")&&dir.y===0)dir={x:0,y:-1};
+  if((k==="arrowdown"||k==="s")&&dir.y===0)dir={x:0,y:1};
+  if((k==="arrowleft"||k==="a")&&dir.x===0)dir={x:-1,y:0};
+  if((k==="arrowright"||k==="d")&&dir.x===0)dir={x:1,y:0};
+  if(k===" "&&dead)reset();
+  if(k.startsWith("arrow")||k===" ")e.preventDefault();
+});
+reset();setInterval(step,110);
+</script></body></html>

@@ -1,0 +1,4 @@
+[
+  { "title": "Snake", "path": "games/snake.html", "tag": "Arcade" },
+  { "title": "Breakout", "path": "games/breakout.html", "tag": "Arcade" }
+]
